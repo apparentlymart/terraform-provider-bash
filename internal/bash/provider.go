@@ -3,6 +3,7 @@ package bash
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-go/tfprotov5"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov5/tftypes"
@@ -104,9 +105,23 @@ func (p *Provider) ReadDataSource(ctx context.Context, req *tfprotov5.ReadDataSo
 	}
 
 	varDecls := variablesToBashDecls(config.Variables)
-	// TODO: varDecls should actually get merged with the user's given source
-	// code.
-	ret := config.ResultDynamicValue(varDecls)
+	source := config.Source
+	var result string
+	if strings.HasPrefix(source, "#!") {
+		// If the source seems to start with an interpreter line then we'll
+		// keep it at the start and insert the variables after it.
+		newline := strings.Index(source, "\n")
+		if newline < 0 {
+			result = source + "\n" + varDecls
+		} else {
+			before, after := source[:newline+1], source[newline+1:]
+			result = before + varDecls + after
+		}
+	} else {
+		result = varDecls + source
+	}
+
+	ret := config.ResultDynamicValue(result)
 
 	return &tfprotov5.ReadDataSourceResponse{
 		State:       ret,

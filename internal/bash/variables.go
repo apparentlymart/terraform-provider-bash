@@ -79,8 +79,9 @@ func variablesToBashDecls(vars map[string]tftypes.Value) string {
 				if i != 0 {
 					buf.WriteString(" ")
 				}
+				buf.WriteString("[")
 				buf.WriteString(bashQuoteString(ek))
-				buf.WriteString(" ")
+				buf.WriteString("]=")
 				buf.WriteString(bashQuoteString(es))
 				i++
 			}
