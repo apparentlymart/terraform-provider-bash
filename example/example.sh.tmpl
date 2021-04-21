@@ -1,0 +1,28 @@
+#!/bin/bash
+
+set -euo pipefail
+
+# This is a very contrived script just to show how you might interact with
+# variables of each of the types that the bash_script data source can pass
+# into a bash script.
+
+# Use $names[@] to access each of the elements of the names array in turn
+for name in "${names[@]}"; do
+    # This also uses "greeting", which is a simple string variable passed in
+    # from Terraform.
+    echo "${greeting} ${name}!"
+done
+
+# Bash's $(( )) syntax allows you to do arithmetic, possibly working with whole
+# number values passed in from Terraform.
+echo "${num} * ${num} = $((num * num))"
+
+# For associative arrays, iterating over just $name[@] will visit each
+# element as a pair of both key and value, which might be useful if you intend
+# to pass them as two consecutive arguments to some other command, but the
+# ${!name[@]} syntax (note that extra exclamation point) limits to just
+# iterating over the keys, which you can then use to look up values so you
+# can use the keys and values separately as needed.
+for k in "${!ids[@]}"; do
+    echo "Instance ${k} has id ${ids[$k]}"
+done

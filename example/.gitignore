@@ -1,0 +1,3 @@
+.terraform/*
+example.sh
+terraform.tfstate*
